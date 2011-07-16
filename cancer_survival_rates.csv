@@ -1,0 +1,97 @@
+group,year,value
+Oral cavity,5,56.7
+Oesophagus,5,14.2
+Stomach,5,23.8
+Colon,5,61.7
+Rectum,5,62.6
+Liver and intrahepatic bile duct,5,7.5
+Pancreas,5,4
+Larynx,5,68.8
+Lung and bronchus,5,15
+Melanomas,5,89
+Breast,5,86.4
+Cervix uteri,5,70.5
+Corpus uteri and uterus,5,84.3
+Ovary,5,55
+Prostate,5,98.8
+Testis,5,94.7
+Urinary bladder,5,82.1
+Kidney and renal pelvis,5,61.8
+Brain and other nervous system,5,32
+Thyroid,5,96
+Hodgkin's disease,5,85.1
+Non-Hodgkin lymphomas,5,57.8
+Multiple myeloma,5,29.5
+Leukaemias,5,42.5
+Oral cavity,10,44.2
+Oesophagus,10,7.9
+Stomach,10,19.4
+Colon,10,55.4
+Rectum,10,55.2
+Liver and intrahepatic bile duct,10,5.8
+Pancreas,10,3
+Larynx,10,56.7
+Lung and bronchus,10,10.6
+Melanomas,10,86.7
+Breast,10,78.3
+Cervix uteri,10,64.1
+Corpus uteri and uterus,10,83.2
+Ovary,10,49.3
+Prostate,10,95.2
+Testis,10,94
+Urinary bladder,10,76.2
+Kidney and renal pelvis,10,54.4
+Brain and other nervous system,10,29.2
+Thyroid,10,95.8
+Hodgkin's disease,10,79.8
+Non-Hodgkin lymphomas,10,46.3
+Multiple myeloma,10,12.7
+Leukaemias,10,32.4
+Oral cavity,15,37.5
+Oesophagus,15,7.7
+Stomach,15,19
+Colon,15,53.9
+Rectum,15,51.8
+Liver and intrahepatic bile duct,15,6.3
+Pancreas,15,2.7
+Larynx,15,45.8
+Lung and bronchus,15,8.1
+Melanomas,15,83.5
+Breast,15,71.3
+Cervix uteri,15,62.8
+Corpus uteri and uterus,15,80.8
+Ovary,15,49.9
+Prostate,15,87.1
+Testis,15,91.1
+Urinary bladder,15,70.3
+Kidney and renal pelvis,15,49.8
+Brain and other nervous system,15,27.6
+Thyroid,15,94
+Hodgkin's disease,15,73.8
+Non-Hodgkin lymphomas,15,38.3
+Multiple myeloma,15,7
+Leukaemias,15,29.7
+Oral cavity,20,33
+Oesophagus,20,5.4
+Stomach,20,14.9
+Colon,20,52.3
+Rectum,20,49.2
+Liver and intrahepatic bile duct,20,7.6
+Pancreas,20,2.7
+Larynx,20,37.8
+Lung and bronchus,20,6.5
+Melanomas,20,82.8
+Breast,20,65
+Cervix uteri,20,60
+Corpus uteri and uterus,20,79.2
+Ovary,20,49.6
+Prostate,20,81.1
+Testis,20,88.2
+Urinary bladder,20,67.9
+Kidney and renal pelvis,20,47.3
+Brain and other nervous system,20,26.1
+Thyroid,20,95.4
+Hodgkin's disease,20,67.1
+Non-Hodgkin lymphomas,20,34.3
+Multiple myeloma,20,4.8
+Leukaemias,20,26.2
