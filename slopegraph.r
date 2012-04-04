@@ -4,7 +4,8 @@
 ### http://www.jameskeirstead.ca/r/slopegraphs-in-r/ 
 
 ### 0. Load necessary libraries
-library(ggplot2)
+require(ggplot2)
+require(grid)
 
 ### 1. Load in the health care data
 data <- read.csv("cancer_survival_rates.csv")
