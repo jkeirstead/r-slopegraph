@@ -119,8 +119,8 @@ plot_slopegraph <- function(data) {
                               dat=subset(data,x==min(x)),
                               hjust=1,size=fontSize) +
                                   scale_x_continuous(lim=range(data$x)-c(min(data$x),0),
-                                                     breaks=xvals,
-                                                     labels=paste(xvals,"years"))
+                                                     breaks=xvals) #,
+#                                                     labels=paste(xvals,"years"))
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
 }

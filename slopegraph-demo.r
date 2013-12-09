@@ -1,18 +1,23 @@
-### R script for creating slopegraphs
-### James Keirstead
-### 16 July 2011
-### http://www.jameskeirstead.ca/r/slopegraphs-in-r/ 
+##' R script for creating slopegraphs
+##' James Keirstead
+##' 16 July 2011
+##' http://www.jameskeirstead.ca/r/slopegraphs-in-r/ 
 
-### 1. Load in the health care data
+##' Load in the health care data and required functions
 data <- read.csv("cancer_survival_rates.csv")
+source("slopegraph.r")
 
-## Convert into the right format
+##' Convert raw data to right format
 df <- build_slopegraph(data, x="year", y="value", group="group")
 
+##' Generate the raw plot
+xvals <- unique(df$x)
+gg.form <- plot_slopegraph(df) +
+    scale_x_continuous(lim=range(df$x)-c(min(df$x),0),
+                       breaks=xvals,
+                       labels=paste(xvals, "years"))
 
-gg.form <- plot_slopegraph(df)
-
-### 7. Save the plot to PDF and PNG
+##' Save the results
 w <- 6  	# width in inches
 h <- 1.6*w	# height in inches
 ggsave("slopegraph.pdf",gg.form,w=w,h=h)
