@@ -37,9 +37,14 @@ calcOffset <- function(df, x, y, group, min.space) {
 
 ##' Build a slopegraph data set
 ##'
-##' Takes a data frame and creates a data set that can be used for
-##' plotting by \code{plot_slopegraph}.
-##'
+##' Modifies a data frame so that it can be used for plotting by
+##' \code{plot_slopegraph}.  The general structure of a slopegraph is
+##' \itemize{
+##' \item a factor giving the group labels
+##' \item an ordered factor giving the x intervals
+##' \item a numeric giving the y values
+##' }
+##' 
 ##' @param df the raw data frame
 ##' @param x a character giving the name of the x-axis column
 ##' @param y a character giving the name of the y-axis column
@@ -53,7 +58,7 @@ build_slopegraph <- function(df, x, y, group) {
     df <- ddply(df, c(x), calcOffset, x, y, group, min.space)
 
     ## Return the tidied result
-    return(df[,-1])    
+    return(df)    
 }
 
 ##' A theme for plotting slopegraphs
@@ -110,17 +115,15 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
 ##' @import ggplot2
 plot_slopegraph <- function(data) {
     xvals <- sort(unique(data[["x"]]))
+    xlim <- range(as.numeric(data[["x"]])) 
     fontSize <- 2.5
     gg <- ggplot(data,aes(x=x,y=y+offset)) +
         geom_line(aes(group=group),colour="grey80") +
-            geom_point(colour="white",size=8) +
-                geom_text(aes(label=round(y)),size=fontSize) +
-                    geom_text(aes(label=group,x=x-0.5),
-                              dat=subset(data,x==min(x)),
-                              hjust=1,size=fontSize) +
-                                  scale_x_continuous(lim=range(data$x)-c(min(data$x),0),
-                                                     breaks=xvals) #,
-#                                                     labels=paste(xvals,"years"))
+        geom_point(colour="white",size=8) +
+        geom_text(aes(label=round(y)),size=fontSize) +
+        geom_text(aes(label=group, x=as.numeric(x)-0.5),
+                      dat=subset(data, x==head(x, 1)),
+                      hjust=1, size=fontSize) 
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
 }
