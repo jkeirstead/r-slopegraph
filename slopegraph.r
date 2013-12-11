@@ -30,7 +30,7 @@ calcOffset <- function(df, x, y, group, min.space) {
     df.new <- data.frame(group=df[[group]][ord],
                          x=df[[x]][ord],
                          y=df[[y]][ord],
-                         offset)
+                         ypos=offset+df[[y]][ord])
   return(df.new)
 }
 
@@ -73,7 +73,12 @@ build_slopegraph <- function(df, x, y, group, method="spaced") {
     } else if (method=="none") {
         ids <- match(c(x, y, group), names(df))
         names(df)[ids] <- c("x", "y", "group")
-        df <- cbind(df, offset=0)               
+        df <- mutate(df, ypos=y)               
+        return(df)
+    } else if (method=="rank") {
+        ids <- match(c(x, y, group), names(df))
+        names(df)[ids] <- c("x", "y", "group")
+        df <- ddply(df, .(x), summarize, x=x, y=y, group=group, ypos=rank(y))
         return(df)
     } else {
         template <- "Method '%s' currently unsupported."
@@ -137,7 +142,7 @@ plot_slopegraph <- function(data) {
     xvals <- sort(unique(data[["x"]]))
     xlim <- range(as.numeric(data[["x"]])) 
     fontSize <- 2.5
-    gg <- ggplot(data,aes(x=x,y=y+offset)) +
+    gg <- ggplot(data,aes(x=x,y=ypos)) +
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
         geom_text(aes(label=round(y)),size=fontSize) +
