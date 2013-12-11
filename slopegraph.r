@@ -49,16 +49,31 @@ calcOffset <- function(df, x, y, group, min.space) {
 ##' @param x a character giving the name of the x-axis column
 ##' @param y a character giving the name of the y-axis column
 ##' @param group a character giving the name of the group column
+##' @param method a character string indicating which method to use to
+##' calculate the position of elements.  Values include "rank", "tufte", "spaced", "none".  
+##' @note The \code{method} option allows the y-position of the elements to be calculated using different assumptions.  These are:
+##' \itemize{
+##' \item \code{rank} the vertical position of each element represents its rank within the column
+##' \item \code{tufte} the vertical position of each element in the first column only is sorted based on the numeric value.  There is no overlapping lines between adjacent groups.  Vertical positions in subsequent columns are only meaningful relative to the first entry in that group.
+##' \item \code{spaced} the vertical position of each element is chosen to ensure a minimum spacing between all elements and preserving the rank order within columns.  Group lines can cross.
+##' \item \code{none} the vertical position of each element is based solely on its value
+##' }
 ##' @return a data frame with labelled columns, group, x, y, and offset
-build_slopegraph <- function(df, x, y, group) {
-    ## Define a minimum spacing (5% of full data range)
-    min.space <- 0.05*diff(range(df[[y]]))
+build_slopegraph <- function(df, x, y, group, method="spaced") {
 
-    ## Transform the data
-    df <- ddply(df, c(x), calcOffset, x, y, group, min.space)
+    if (method=="spaced") {
+        ## Define a minimum spacing (5% of full data range)
+        min.space <- 0.05*diff(range(df[[y]]))
 
-    ## Return the tidied result
-    return(df)    
+        ## Transform the data
+        df <- ddply(df, c(x), calcOffset, x, y, group, min.space)
+
+        ## Return the tidied result
+        return(df)
+    } else {
+        template <- "Method '%s' currently unsupported."
+        warning(sprintf(template, method))
+    }
 }
 
 ##' A theme for plotting slopegraphs
