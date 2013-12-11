@@ -70,6 +70,11 @@ build_slopegraph <- function(df, x, y, group, method="spaced") {
 
         ## Return the tidied result
         return(df)
+    } else if (method=="none") {
+        ids <- match(c(x, y, group), names(df))
+        names(df)[ids] <- c("x", "y", "group")
+        df <- cbind(df, offset=0)               
+        return(df)
     } else {
         template <- "Method '%s' currently unsupported."
         warning(sprintf(template, method))
