@@ -141,41 +141,26 @@ tufte_sort <- function(df) {
 theme_slopegraph <- function (base_size = 12, base_family = "") {
     require(grid)
     theme(axis.line = element_blank(),
-                   axis.text.x = element_text(family = base_family, 
-                     size = base_size * 0.8, lineheight = 0.9, vjust = 1),
-                   axis.text.y = element_blank(),
-                   axis.ticks = element_blank(),
-                   axis.title.x = element_blank(),
-                   axis.title.y = element_blank(),
-                   axis.ticks.length = unit(0, "lines"),
-                   axis.ticks.margin = unit(0, "lines"), 
-                   legend.background = element_rect(colour = NA),
-                   legend.key = element_rect(colour = "grey80"), 
-                   legend.key.size = unit(1.2, "lines"),
-                   legend.key.height = NULL, 
-                   legend.key.width = NULL,
-                   legend.text = element_text(family = base_family, 
-                     size = base_size * 0.8),
-                   legend.text.align = NULL, 
-                   legend.title = element_text(family = base_family,
-                     size = base_size * 0.8, face = "bold", hjust = 0),
-                   legend.title.align = NULL, 
-                   legend.position = "right",
-                   legend.direction = "vertical", 
-                   legend.box = NULL,
-                   panel.background = element_blank(),
-                   panel.border = element_blank(),
-                   panel.grid.major = element_blank(),
-                   panel.grid.minor = element_blank(),
-                   panel.margin = unit(0.25, "lines"), 
-                   strip.background = element_blank(),
-                   strip.text.x = element_text(family = base_family,
-                     size = base_size * 0.8),
-                   strip.text.y = element_blank(),
-                   plot.background = element_blank(),
-                   plot.title = element_text(family = base_family,
-                     size = base_size * 1.2),
-                   plot.margin = unit(c(1, 0.5, 0.5, 0.5), "lines"),
+          axis.text = element_text(colour="black"),
+          axis.text.x = element_text(size = rel(1), lineheight = 0.9,
+              vjust = 1),
+          axis.text.y = element_text(size=rel(0.8)),
+          axis.ticks = element_blank(),
+          axis.title.x = element_blank(),
+          axis.title.y = element_blank(),
+          axis.ticks.length = unit(0, "lines"),
+          axis.ticks.margin = unit(0, "lines"), 
+          panel.background = element_blank(),
+          panel.border = element_blank(),
+          panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank(),
+          panel.margin = unit(0.25, "lines"), 
+          strip.background = element_blank(),
+          strip.text.x = element_text(size = rel(0.8)),
+          strip.text.y = element_blank(),
+          plot.background = element_blank(),
+          plot.title = element_text(size = rel(1)),
+          plot.margin = unit(c(1, 0.5, 0.5, 0.5), "lines"),
           complete=FALSE)
 }
 
@@ -186,16 +171,14 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
 ##' @return a ggplot object
 ##' @import ggplot2
 plot_slopegraph <- function(df) {
-    xvals <- sort(unique(df[["x"]]))
-    xlim <- range(as.numeric(df[["x"]])) 
+    ylabs <- subset(df, x==head(x,1))$group
+    yvals <- subset(df, x==head(x,1))$ypos
     fontSize <- 2.5
     gg <- ggplot(df,aes(x=x,y=ypos)) +
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
         geom_text(aes(label=round(y)),size=fontSize) +
-        geom_text(aes(label=group, x=as.numeric(x)-0.5),
-                      dat=subset(df, x==head(x, 1)),
-                      hjust=1, size=fontSize) 
+        scale_y_continuous(name="", breaks=yvals, labels=ylabs)
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
 }
