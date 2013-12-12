@@ -31,7 +31,13 @@ build_slopegraph <- function(df, x, y, group, method="tufte") {
 
     ## First rename the columns for consistency
     ids <- match(c(x, y, group), names(df))
-    names(df)[ids] <- c("x", "y", "group")
+    df <- df[,ids]
+    names(df) <- c("x", "y", "group")
+
+    ## Expand grid to ensure every combination has a defined value
+    tmp <- expand.grid(x=unique(df$x), group=unique(df$group))
+    tmp <- merge(df, tmp, all.y=TRUE)
+    df <- mutate(tmp, y=ifelse(is.na(y), 0, y))
 
     ## Then select and apply the appropriate method
     if (method=="spaced") {
@@ -107,7 +113,7 @@ tufte_sort <- function(df) {
     tmp <- dcast(df, group ~ x, value.var="y")
     ord <- order(tmp[,2])
     tmp <- tmp[ord,]
-
+    
     min.space <- 0.05*diff(range(tmp[,-1]))
     yshift <- numeric(nrow(tmp))
     ## Start at "bottom" row
