@@ -1,39 +1,7 @@
-### R script for creating slopegraphs
-### James Keirstead
-### 16 July 2011
-### http://www.jameskeirstead.ca/r/slopegraphs-in-r/ 
-
-
-##' Calculates the vertical offset between successive data points
-##' 
-##' @param df a data frame representing a single year of data
-##' @param x a character giving the name of the x-axis column
-##' @param y a character giving the name of the y-axis column
-##' @param group a character giving the name of the group column
-##' @param min.space the minimum spacing between y values
-##' @return a data frame
-calcOffset <- function(df, x, y, group, min.space) {
-
-    ## Sort by value
-    ord <- order(df[[y]], decreasing=T)
-    ## Calculate the difference between adjacent values
-    delta <- -1*diff(df[[y]][ord])
-    ## Adjust to ensure that minimum space requirement is met 
-    offset <- (min.space - delta)
-    offset <- replace(offset, offset<0, 0)
-    ## Add a trailing zero for the lowest value
-    offset <- c(offset, 0)
-    ## Calculate the offset needed to be added to each point
-    ## as a cumulative sum of previous values
-    offset <- rev(cumsum(rev(offset)))
-    ## Assemble and return the new data frame
-    df.new <- data.frame(group=df[[group]][ord],
-                         x=df[[x]][ord],
-                         y=df[[y]][ord],
-                         ypos=offset+df[[y]][ord])
-  return(df.new)
-}
-
+##' @title R script for creating slopegraphs
+##' @author James Keirstead
+##' 12 December 2013
+##' http://www.jameskeirstead.ca/r/slopegraphs-in-r/ 
 
 ##' Build a slopegraph data set
 ##'
@@ -46,44 +14,36 @@ calcOffset <- function(df, x, y, group, min.space) {
 ##' }
 ##' 
 ##' @param df the raw data frame
-##' @param x a character giving the name of the x-axis column
-##' @param y a character giving the name of the y-axis column
-##' @param group a character giving the name of the group column
+##' @param x a character giving the name of the x-axis column.  This column must be an ordered factor.
+##' @param y a character giving the name of the y-axis column.  This column must be a numeric.
+##' @param group a character giving the name of the group column.  This column must be a factor.
 ##' @param method a character string indicating which method to use to
-##' calculate the position of elements.  Values include "rank", "tufte", "spaced", "none".  
-##' @note The \code{method} option allows the y-position of the elements to be calculated using different assumptions.  These are:
+##' calculate the position of elements.  Values include "tufte" (default), "spaced", "rank", "none".  
+##' @details The \code{method} option allows the y-position of the elements to be calculated using different assumptions.  These are:
 ##' \itemize{
-##' \item \code{rank} the vertical position of each element represents its rank within the column
-##' \item \code{tufte} the vertical position of each element in the first column only is sorted based on the numeric value.  There is no overlapping lines between adjacent groups.  Vertical positions in subsequent columns are only meaningful relative to the first entry in that group.
-##' \item \code{spaced} the vertical position of each element is chosen to ensure a minimum spacing between all elements and preserving the rank order within columns.  Group lines can cross.
-##' \item \code{none} the vertical position of each element is based solely on its value
+##' \item \code{tufte} Values in the first x-column are sorted based on their numeric value.  Subsequent group lines are then shifted to ensure that the lines for two adjacent groups never cross.  Vertical positions in subsequent columns are only meaningful relative to the first entry in that group.
+##' \item \code{spaced} The vertical position of each element is chosen to ensure a minimum spacing between all elements and preserving the rank order within columns.  Group lines can cross.
+##' \item \code{rank} The vertical position of each element represents its rank within the column.  
+##' \item \code{none} The vertical position of each element is based solely on its value
 ##' }
-##' @return a data frame with labelled columns, group, x, y, and offset
-build_slopegraph <- function(df, x, y, group, method="spaced") {
+##' @return a data frame with labelled columns, group, x, y, and ypos
+build_slopegraph <- function(df, x, y, group, method="tufte") {
 
+    ## First rename the columns for consistency
+    ids <- match(c(x, y, group), names(df))
+    names(df)[ids] <- c("x", "y", "group")
+
+    ## Then select and apply the appropriate method
     if (method=="spaced") {
-        ## Define a minimum spacing (5% of full data range)
-        min.space <- 0.05*diff(range(df[[y]]))
-
-        ## Transform the data
-        df <- ddply(df, c(x), calcOffset, x, y, group, min.space)
-
-        ## Return the tidied result
+        df <- spaced_sort(df)
         return(df)
     } else if (method=="none") {
-        ids <- match(c(x, y, group), names(df))
-        names(df)[ids] <- c("x", "y", "group")
         df <- mutate(df, ypos=y)               
         return(df)
     } else if (method=="rank") {
-        ids <- match(c(x, y, group), names(df))
-        names(df)[ids] <- c("x", "y", "group")
         df <- ddply(df, .(x), summarize, x=x, y=y, group=group, ypos=rank(y))
         return(df)
     } else if (method=="tufte") {
-        ids <- match(c(x, y, group), names(df))
-        names(df)[ids] <- c("x", "y", "group")
-
         df <- tufte_sort(df)
         return(df)
     } else {
@@ -92,13 +52,56 @@ build_slopegraph <- function(df, x, y, group, method="spaced") {
     }
 }
 
+##' Spaced sort for slopegraphs
+##'
+##' Calculates the position of each element to ensure a minimum
+##' space between adjacent entries within a column, while preserving
+##' rank order.  Group lines can cross
+##' @param df the raw data frame
+##' @return a data frame with the ypos column added
+spaced_sort <- function(df) {
+    ## Define a minimum spacing (5% of full data range)
+    min.space <- 0.05*diff(range(df$y))
+
+    ## Transform the data
+    df <- ddply(df, .(x), calc_spaced_offset, min.space)
+    return(df)
+}
+
+##' Calculates the vertical offset between successive data points
+##' 
+##' @param df a data frame representing a single year of data
+##' @param min.space the minimum spacing between y values
+##' @return a data frame
+calc_spaced_offset <- function(df, min.space) {
+
+    ## Sort by value
+    ord <- order(df$y, decreasing=T)
+    ## Calculate the difference between adjacent values
+    delta <- -1*diff(df$y[ord])
+    ## Adjust to ensure that minimum space requirement is met 
+    offset <- (min.space - delta)
+    offset <- replace(offset, offset<0, 0)
+    ## Add a trailing zero for the lowest value
+    offset <- c(offset, 0)
+    ## Calculate the offset needed to be added to each point
+    ## as a cumulative sum of previous values
+    offset <- rev(cumsum(rev(offset)))
+    ## Assemble and return the new data frame
+    df.new <- data.frame(group=df$group[ord],
+                         x=df$x[ord],
+                         y=df$y[ord],
+                         ypos=offset+df$y[ord])
+  return(df.new)
+}
+
+
 ##' Calculates slope graph positions based on Edward Tufte's layout
 ##'
 ##' @param df the raw data frame with named x, y, and group columns
 ##' @return a data frame with an additional calculate ypos column
 tufte_sort <- function(df) {
 
-    ## STOPPED HERE
     ## Cast into a matrix shape and arrange by first column
     require(reshape2)
     tmp <- dcast(df, group ~ x, value.var="y")
