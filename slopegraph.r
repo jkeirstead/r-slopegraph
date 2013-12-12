@@ -23,6 +23,9 @@
 ##' @param method a character string indicating which method to use to
 ##' calculate the position of elements.  Values include "tufte"
 ##' (default), "spaced", "rank", "none".
+##' @param min.space fraction of total data range to leave as a
+##' minimum gap (default = 0.05, only used by methods \code{spaced}
+##' and \code{tufte})
 ##' @details The \code{method} option allows the y-position of the
 ##' elements to be calculated using different assumptions.  These are:
 ##' \itemize{ \item \code{tufte} Values in the first x-column are
@@ -37,7 +40,7 @@
 ##' rank within the column.  \item \code{none} The vertical position
 ##' of each element is based solely on its value }
 ##' @return a data frame with labelled columns, group, x, y, and ypos
-build_slopegraph <- function(df, x, y, group, method="tufte") {
+build_slopegraph <- function(df, x, y, group, method="tufte", min.space=0.05) {
 
     ## First rename the columns for consistency
     ids <- match(c(x, y, group), names(df))
@@ -51,7 +54,7 @@ build_slopegraph <- function(df, x, y, group, method="tufte") {
 
     ## Then select and apply the appropriate method
     if (method=="spaced") {
-        df <- spaced_sort(df)
+        df <- spaced_sort(df, min.space=min.space)
         return(df)
     } else if (method=="none") {
         df <- mutate(df, ypos=y)               
@@ -60,7 +63,7 @@ build_slopegraph <- function(df, x, y, group, method="tufte") {
         df <- ddply(df, .(x), summarize, x=x, y=y, group=group, ypos=rank(y))
         return(df)
     } else if (method=="tufte") {
-        df <- tufte_sort(df)
+        df <- tufte_sort(df, min.space=min.space)
         return(df)
     } else {
         template <- "Method '%s' currently unsupported."
@@ -74,10 +77,12 @@ build_slopegraph <- function(df, x, y, group, method="tufte") {
 ##' space between adjacent entries within a column, while preserving
 ##' rank order.  Group lines can cross
 ##' @param df the raw data frame
+##' @param min.space fraction of total data range to leave as a
+##' minimum gap
 ##' @return a data frame with the ypos column added
-spaced_sort <- function(df) {
+spaced_sort <- function(df, min.space=0.05) {
     ## Define a minimum spacing (5% of full data range)
-    min.space <- 0.05*diff(range(df$y))
+    min.space <- min.space*diff(range(df$y))
 
     ## Transform the data
     df <- ddply(df, .(x), calc_spaced_offset, min.space)
@@ -115,8 +120,10 @@ calc_spaced_offset <- function(df, min.space) {
 ##' Calculates slope graph positions based on Edward Tufte's layout
 ##'
 ##' @param df the raw data frame with named x, y, and group columns
+##' @param min.space fraction of total data range to leave as a
+##' minimum gap
 ##' @return a data frame with an additional calculate ypos column
-tufte_sort <- function(df) {
+tufte_sort <- function(df, min.space=0.05) {
 
     ## Cast into a matrix shape and arrange by first column
     require(reshape2)
@@ -124,7 +131,7 @@ tufte_sort <- function(df) {
     ord <- order(tmp[,2])
     tmp <- tmp[ord,]
     
-    min.space <- 0.05*diff(range(tmp[,-1]))
+    min.space <- min.space*diff(range(tmp[,-1]))
     yshift <- numeric(nrow(tmp))
     ## Start at "bottom" row
     ## Repeat for rest of the rows until you hit the top
