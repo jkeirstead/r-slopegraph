@@ -10,9 +10,10 @@ source("slopegraph.r")
 ##' Convert raw data to right format
 df <- build_slopegraph(data, x="year", y="value", group="group", method="tufte")
 
-## Refactor the x-axis to get the right labels
+## Refactor the x-axis to get the right labels, round the y values for presentation
 df <- transform(df, x=factor(x, levels=c(5,10,15,20),
-                        labels=c("5 years", "10 years", "15 years", "20 years")))
+                        labels=c("5 years", "10 years", "15 years", "20 years")),
+                y=round(y))
 ##' Generate the raw plot
 gg.form <- plot_slopegraph(df) +
     labs(title="Estimates of % survival rates") 

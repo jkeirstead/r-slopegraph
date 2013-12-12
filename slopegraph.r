@@ -14,18 +14,28 @@
 ##' }
 ##' 
 ##' @param df the raw data frame
-##' @param x a character giving the name of the x-axis column.  This column must be an ordered factor.
-##' @param y a character giving the name of the y-axis column.  This column must be a numeric.
-##' @param group a character giving the name of the group column.  This column must be a factor.
+##' @param x a character giving the name of the x-axis column.  This
+##' column must be an ordered factor.
+##' @param y a character giving the name of the y-axis column.  This
+##' column must be a numeric.
+##' @param group a character giving the name of the group column.
+##' This column must be a factor.
 ##' @param method a character string indicating which method to use to
-##' calculate the position of elements.  Values include "tufte" (default), "spaced", "rank", "none".  
-##' @details The \code{method} option allows the y-position of the elements to be calculated using different assumptions.  These are:
-##' \itemize{
-##' \item \code{tufte} Values in the first x-column are sorted based on their numeric value.  Subsequent group lines are then shifted to ensure that the lines for two adjacent groups never cross.  Vertical positions in subsequent columns are only meaningful relative to the first entry in that group.
-##' \item \code{spaced} The vertical position of each element is chosen to ensure a minimum spacing between all elements and preserving the rank order within columns.  Group lines can cross.
-##' \item \code{rank} The vertical position of each element represents its rank within the column.  
-##' \item \code{none} The vertical position of each element is based solely on its value
-##' }
+##' calculate the position of elements.  Values include "tufte"
+##' (default), "spaced", "rank", "none".
+##' @details The \code{method} option allows the y-position of the
+##' elements to be calculated using different assumptions.  These are:
+##' \itemize{ \item \code{tufte} Values in the first x-column are
+##' sorted based on their numeric value.  Subsequent group lines are
+##' then shifted to ensure that the lines for two adjacent groups
+##' never cross.  Vertical positions in subsequent columns are only
+##' meaningful relative to the first entry in that group.  \item
+##' \code{spaced} The vertical position of each element is chosen to
+##' ensure a minimum spacing between all elements and preserving the
+##' rank order within columns.  Group lines can cross.  \item
+##' \code{rank} The vertical position of each element represents its
+##' rank within the column.  \item \code{none} The vertical position
+##' of each element is based solely on its value }
 ##' @return a data frame with labelled columns, group, x, y, and ypos
 build_slopegraph <- function(df, x, y, group, method="tufte") {
 
@@ -183,7 +193,7 @@ plot_slopegraph <- function(df) {
     gg <- ggplot(df,aes(x=x,y=ypos)) +
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
-        geom_text(aes(label=round(y)),size=fontSize) +
+        geom_text(aes(label=y),size=fontSize) +
         scale_y_continuous(name="", breaks=yvals, labels=ylabs)
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
