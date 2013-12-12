@@ -80,11 +80,48 @@ build_slopegraph <- function(df, x, y, group, method="spaced") {
         names(df)[ids] <- c("x", "y", "group")
         df <- ddply(df, .(x), summarize, x=x, y=y, group=group, ypos=rank(y))
         return(df)
+    } else if (method=="tufte") {
+        ids <- match(c(x, y, group), names(df))
+        names(df)[ids] <- c("x", "y", "group")
+
+        df <- tufte_sort(df)
+        return(df)
     } else {
         template <- "Method '%s' currently unsupported."
         warning(sprintf(template, method))
     }
 }
+
+##' Calculates slope graph positions based on Edward Tufte's layout
+##'
+##' @param df the raw data frame with named x, y, and group columns
+##' @return a data frame with an additional calculate ypos column
+tufte_sort <- function(df) {
+
+    ## Convert into a matrix
+    tmp <- dcast(df, group ~ x, value.var="y")
+    ## Order by the first numeric column
+    tmp <- tmp[order(tmp[,2]),]
+    names <- tmp[,1]
+    ## Convert to a matrix
+    tmp <- as.matrix(tmp[,-1])
+    row.names(tmp) <- names
+
+    ## Calculate the difference between rows
+    d <- diff(tmp)
+    min.space <- 0.05*range(tmp)
+    d2 <- ifelse(d<min.space, min.space-d, 0)
+    d2 <- rbind(rep(0, ncol(d2)), d2)
+    d2 <- apply(d2, 1, max)
+    d2.df <- data.frame(group=names, yshift=as.numeric(d2))
+    
+    ## Merge with original
+    df <- merge(df, d2.df)
+    df <- transform(df, ypos=y+yshift)
+    df <- arrange(df, group, x)
+    return(df)
+}
+
 
 ##' A theme for plotting slopegraphs
 ##'
