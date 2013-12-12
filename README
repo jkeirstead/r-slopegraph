@@ -1,10 +1,11 @@
 Slopegraphs in R
 James Keirstead
-16 July 2011
+12 December 2013
 http://www.jameskeirstead.ca/r/slopegraphs-in-r/
 
 This is a small project demonstrating how Edward Tufte style slopegraphs can be made with R and ggplot2.  The project consists of:
 
-- cancer_survival_rates.csv: the raw data
 - slopegraph.r: the R script (requires ggplot2 library)
+- cancer_survival_rates.csv: the raw data
+- slopegraph-demo.r: creates example plot
 
