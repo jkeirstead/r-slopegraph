@@ -8,14 +8,14 @@ data <- read.csv("cancer_survival_rates.csv")
 source("slopegraph.r")
 
 ##' Convert raw data to right format
-df <- build_slopegraph(data, x="year", y="value", group="group")
+df <- build_slopegraph(data, x="year", y="value", group="group", method="tufte")
 
 ##' Generate the raw plot
 xvals <- unique(df$x)
-gg.form <- plot_slopegraph(df) +
-    scale_x_continuous(lim=range(df$x)-c(min(df$x),0),
-                       breaks=xvals,
-                       labels=paste(xvals, "years"))
+gg.form <- plot_slopegraph(df) 
+#    scale_x_continuous(lim=range(df$x)-c(min(df$x),0),
+#                       breaks=xvals,
+#                       labels=paste(xvals, "years"))
 
 ##' Save the results
 w <- 6  	# width in inches

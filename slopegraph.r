@@ -98,28 +98,35 @@ build_slopegraph <- function(df, x, y, group, method="spaced") {
 ##' @return a data frame with an additional calculate ypos column
 tufte_sort <- function(df) {
 
-    ## Convert into a matrix
+    ## STOPPED HERE
+    ## Cast into a matrix shape and arrange by first column
+    require(reshape2)
     tmp <- dcast(df, group ~ x, value.var="y")
-    ## Order by the first numeric column
-    tmp <- tmp[order(tmp[,2]),]
-    names <- tmp[,1]
-    ## Convert to a matrix
-    tmp <- as.matrix(tmp[,-1])
-    row.names(tmp) <- names
+    ord <- order(tmp[,2])
+    tmp <- tmp[ord,]
 
-    ## Calculate the difference between rows
-    d <- diff(tmp)
-    min.space <- 0.05*range(tmp)
-    d2 <- ifelse(d<min.space, min.space-d, 0)
-    d2 <- rbind(rep(0, ncol(d2)), d2)
-    d2 <- apply(d2, 1, max)
-    d2.df <- data.frame(group=names, yshift=as.numeric(d2))
+    min.space <- 0.05*diff(range(tmp[,-1]))
+    yshift <- numeric(nrow(tmp))
+    ## Start at "bottom" row
+    ## Repeat for rest of the rows until you hit the top
+    for (i in 2:nrow(tmp)) {
+        ## Shift subsequent row up by equal space so gap between
+        ## two entries is >= minimum
+        mat <- as.matrix(tmp[(i-1):i, -1])
+        d.min <- min(diff(mat))
+        yshift[i] <- ifelse(d.min < min.space, min.space - d.min, 0)
+    }
+
     
-    ## Merge with original
-    df <- merge(df, d2.df)
-    df <- transform(df, ypos=y+yshift)
-    df <- arrange(df, group, x)
-    return(df)
+    tmp <- cbind(tmp, yshift=cumsum(yshift))
+
+    scale <- 1
+    tmp <- melt(tmp, id=c("group", "yshift"), variable.name="x", value.name="y")
+    ## Store these gaps in a separate variable so that they can be scaled ypos = a*yshift + y
+
+    tmp <- transform(tmp, ypos=y + scale*yshift)
+    return(tmp)
+   
 }
 
 
@@ -172,19 +179,19 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
 
 ##' Plots a slopegraph
 ##'
-##' @param data a data frame giving the data
+##' @param df a data frame giving the data
 ##' @return a ggplot object
 ##' @import ggplot2
-plot_slopegraph <- function(data) {
-    xvals <- sort(unique(data[["x"]]))
-    xlim <- range(as.numeric(data[["x"]])) 
+plot_slopegraph <- function(df) {
+    xvals <- sort(unique(df[["x"]]))
+    xlim <- range(as.numeric(df[["x"]])) 
     fontSize <- 2.5
-    gg <- ggplot(data,aes(x=x,y=ypos)) +
+    gg <- ggplot(df,aes(x=x,y=ypos)) +
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
         geom_text(aes(label=round(y)),size=fontSize) +
         geom_text(aes(label=group, x=as.numeric(x)-0.5),
-                      dat=subset(data, x==head(x, 1)),
+                      dat=subset(df, x==head(x, 1)),
                       hjust=1, size=fontSize) 
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
