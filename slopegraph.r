@@ -192,10 +192,10 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
 ##' @param df a data frame giving the data
 ##' @return a ggplot object
 ##' @import ggplot2
-plot_slopegraph <- function(df) {
+plot_slopegraph <- function(df, font_size=2.5) {
     ylabs <- subset(df, x==head(x,1))$group
     yvals <- subset(df, x==head(x,1))$ypos
-    fontSize <- 2.5
+    fontSize <- font_size
     gg <- ggplot(df,aes(x=x,y=ypos)) +
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
