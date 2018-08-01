@@ -192,7 +192,7 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
 ##' @param df a data frame giving the data
 ##' @return a ggplot object
 ##' @import ggplot2
-plot_slopegraph <- function(df, font_size=2.5) {
+plot_slopegraph <- function(df, font_size=2.5, axis_pos = "left") {
     ylabs <- subset(df, x==head(x,1))$group
     yvals <- subset(df, x==head(x,1))$ypos
     fontSize <- font_size
@@ -200,7 +200,7 @@ plot_slopegraph <- function(df, font_size=2.5) {
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
         geom_text(aes(label=y),size=fontSize) +
-        scale_y_continuous(name="", breaks=yvals, labels=ylabs)
+        scale_y_continuous(name="", breaks=yvals, labels=ylabs, position = axis_pos)
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
 }
