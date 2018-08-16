@@ -164,7 +164,7 @@ tufte_sort <- function(df, min.space=0.05) {
 theme_slopegraph <- function (base_size = 12, base_family = "") {
     require(grid)
     theme(axis.line = element_blank(),
-          axis.text = element_text(colour="black"),
+          axis.text = element_text(colour="black", margin = unit(0, "lines")),
           axis.text.x = element_text(size = rel(1), lineheight = 0.9,
               vjust = 1),
           axis.text.y = element_text(size=rel(0.8)),
@@ -172,7 +172,6 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
           axis.title.x = element_blank(),
           axis.title.y = element_blank(),
           axis.ticks.length = unit(0, "lines"),
-          axis.ticks.margin = unit(0, "lines"), 
           panel.background = element_blank(),
           panel.border = element_blank(),
           panel.grid.major = element_blank(),
@@ -193,15 +192,15 @@ theme_slopegraph <- function (base_size = 12, base_family = "") {
 ##' @param df a data frame giving the data
 ##' @return a ggplot object
 ##' @import ggplot2
-plot_slopegraph <- function(df) {
+plot_slopegraph <- function(df, font_size=2.5, axis_pos = "left") {
     ylabs <- subset(df, x==head(x,1))$group
     yvals <- subset(df, x==head(x,1))$ypos
-    fontSize <- 2.5
+    fontSize <- font_size
     gg <- ggplot(df,aes(x=x,y=ypos)) +
         geom_line(aes(group=group),colour="grey80") +
         geom_point(colour="white",size=8) +
         geom_text(aes(label=y),size=fontSize) +
-        scale_y_continuous(name="", breaks=yvals, labels=ylabs)
+        scale_y_continuous(name="", breaks=yvals, labels=ylabs, position = axis_pos)
     gg.form <- gg + theme_slopegraph()
     return(gg.form)
 }
